@@ -16,6 +16,22 @@ async function createNewRecommendation(req, res) {
     }
 }
 
+async function evaluateRecommendation(req, res) {
+    const { id, vote } = req.params;
+    if (!isValid.newVote({ id, vote })) {
+        return res.status(400).send('Error with inputs validation');
+    }
+    try {
+        const addedVote = await recommendationsService.saveVote({ id, vote });
+        if (!addedVote) return res.sendStatus(404);
+        return res.sendStatus(200);
+    } catch (error) {
+        console.error(error);
+        return res.sendStatus(500);
+    }
+}
+
 export {
     createNewRecommendation,
+    evaluateRecommendation,
 };

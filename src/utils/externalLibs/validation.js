@@ -8,6 +8,17 @@ function newRecommendation(recommendation) {
     return !(schema.validate(recommendation)).error;
 }
 
+function newVote({ id, vote }) {
+    const schema = joi.object({
+        id: joi.number().min(0).required(),
+    });
+    const isIdValid = !(schema.validate({ id })).error;
+    const isVoteValid = ['upvote', 'downvote'].includes(vote.toLowerCase());
+
+    return isIdValid && isVoteValid;
+}
+
 export {
     newRecommendation,
+    newVote,
 };
