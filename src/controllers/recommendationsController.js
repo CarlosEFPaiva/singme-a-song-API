@@ -31,7 +31,21 @@ async function evaluateRecommendation(req, res) {
     }
 }
 
+async function getRandom(req, res) {
+    try {
+        const songs = await recommendationsService.getRandomSongs();
+        if (!songs.length) {
+            return res.sendStatus(404);
+        }
+        return res.send(songs);
+    } catch (error) {
+        console.error(error);
+        return res.sendStatus(500);
+    }
+}
+
 export {
     createNewRecommendation,
     evaluateRecommendation,
+    getRandom,
 };

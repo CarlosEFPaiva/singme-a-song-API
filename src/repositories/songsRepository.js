@@ -24,7 +24,34 @@ async function addVote({ id, addToScore, deleteIfLowScore, mininumScore }) {
     return addedVote;
 }
 
+async function getRandomSongs({ minScore, maxScore }) {
+    const mainQueryText = `
+        SELECT *
+        FROM songs
+        WHERE 1 = 1
+    `;
+    const firstQueryParams = [];
+    let firstQueryText = mainQueryText;
+
+    if (minScore) {
+        firstQueryParams.push(minScore);
+        firstQueryText += ` AND score >= $${firstQueryParams.length}`;
+    }
+
+    if (maxScore) {
+        firstQueryParams.push(maxScore);
+        firstQueryText += ` AND score <= $${firstQueryParams.length}`;
+    }
+    let songs = (await connection.query(`${firstQueryText};`, firstQueryParams)).rows;
+
+    if (!songs) {
+        songs = (await connection.query(`${mainQueryText};`)).rows;
+    }
+    return songs;
+}
+
 export {
     addNewSong,
     addVote,
+    getRandomSongs,
 };
