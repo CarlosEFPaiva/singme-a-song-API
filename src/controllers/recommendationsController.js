@@ -31,9 +31,26 @@ async function evaluateRecommendation(req, res) {
     }
 }
 
-async function getRandom(req, res) {
+async function getRandomSongs(req, res) {
     try {
         const songs = await recommendationsService.getRandomSongs();
+        if (!songs.length) {
+            return res.sendStatus(404);
+        }
+        return res.send(songs);
+    } catch (error) {
+        console.error(error);
+        return res.sendStatus(500);
+    }
+}
+
+async function getTopSongs(req, res) {
+    const { amount } = req.params;
+    if (!isValid.amount(amount)) {
+        return res.status(400).send('Error with inputs validation');
+    }
+    try {
+        const songs = await recommendationsService.getTopSongs(amount);
         if (!songs.length) {
             return res.sendStatus(404);
         }
@@ -47,5 +64,6 @@ async function getRandom(req, res) {
 export {
     createNewRecommendation,
     evaluateRecommendation,
-    getRandom,
+    getRandomSongs,
+    getTopSongs,
 };

@@ -5,7 +5,7 @@ async function createNewRecommendation({ name, youtubeLink }) {
 }
 
 async function saveVote({ id, vote }) {
-    const addToScore = (vote === 'upvote' ? 1 : -1);
+    const addToScore = (vote.toLowerCase() === 'upvote' ? 1 : -1);
     return songsRepository.addVote({ id, addToScore, deleteIfLowScore: true, mininumScore: -5 });
 }
 
@@ -19,11 +19,16 @@ async function getRandomSongs() {
     } else {
         minScore = 11;
     }
-    return songsRepository.getRandomSongs({ minScore, maxScore });
+    return songsRepository.getSongs({ minScore, maxScore, random: true });
+}
+
+async function getTopSongs(amount) {
+    return songsRepository.getSongs({ limit: amount });
 }
 
 export {
     createNewRecommendation,
     saveVote,
     getRandomSongs,
+    getTopSongs,
 };

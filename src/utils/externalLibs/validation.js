@@ -18,7 +18,15 @@ function newVote({ id, vote }) {
     return isIdValid && isVoteValid;
 }
 
+function amount(number) {
+    const schema = joi.object({
+        number: joi.number().min(1).required(),
+    });
+    return !(schema.validate({ number })).error;
+}
+
 export {
     newRecommendation,
     newVote,
+    amount,
 };

@@ -24,25 +24,42 @@ async function addVote({ id, addToScore, deleteIfLowScore, mininumScore }) {
     return addedVote;
 }
 
-async function getRandomSongs({ minScore, maxScore }) {
+function getConditionedQuery({ mainQueryText, minScore, maxScore, limit, random }) {
+    const queryParams = [];
+    let conditionedQueryText = mainQueryText;
+    if (minScore) {
+        queryParams.push(minScore);
+        conditionedQueryText += ` AND score >= $${queryParams.length}`;
+    }
+    if (maxScore) {
+        queryParams.push(maxScore);
+        conditionedQueryText += ` AND score <= $${queryParams.length}`;
+    }
+    if (random) {
+        conditionedQueryText += ' ORDER BY RANDOM()';
+    } else {
+        conditionedQueryText += ' ORDER BY score DESC';
+    }
+    if (limit) {
+        queryParams.push(limit);
+        conditionedQueryText += ` LIMIT $${queryParams.length}`;
+    }
+    return { conditionedQueryText, queryParams };
+}
+
+async function getSongs({ minScore, maxScore, limit, random }) {
     const mainQueryText = `
         SELECT *
         FROM songs
         WHERE 1 = 1
     `;
-    const firstQueryParams = [];
-    let firstQueryText = mainQueryText;
 
-    if (minScore) {
-        firstQueryParams.push(minScore);
-        firstQueryText += ` AND score >= $${firstQueryParams.length}`;
-    }
+    const {
+        conditionedQueryText,
+        queryParams,
+    } = getConditionedQuery({ mainQueryText, minScore, maxScore, limit, random });
 
-    if (maxScore) {
-        firstQueryParams.push(maxScore);
-        firstQueryText += ` AND score <= $${firstQueryParams.length}`;
-    }
-    let songs = (await connection.query(`${firstQueryText};`, firstQueryParams)).rows;
+    let songs = (await connection.query(`${conditionedQueryText};`, queryParams)).rows;
 
     if (!songs.length) {
         songs = (await connection.query(`${mainQueryText};`)).rows;
@@ -53,5 +70,5 @@ async function getRandomSongs({ minScore, maxScore }) {
 export {
     addNewSong,
     addVote,
-    getRandomSongs,
+    getSongs,
 };
