@@ -44,7 +44,7 @@ async function getRandomSongs({ minScore, maxScore }) {
     }
     let songs = (await connection.query(`${firstQueryText};`, firstQueryParams)).rows;
 
-    if (!songs) {
+    if (!songs.length) {
         songs = (await connection.query(`${mainQueryText};`)).rows;
     }
     return songs;
